@@ -36,7 +36,7 @@ input,textarea,select{font:inherit;color:inherit;background:var(--card)}
 :focus-visible{outline:2.5px solid var(--blue);outline-offset:2px;border-radius:4px}
 code,kbd{font-family:var(--mono);font-size:.88em;background:var(--sunk);border:1px solid var(--hair);border-radius:4px;padding:0 4px}
 h1,h2,h3{font-family:var(--disp);letter-spacing:-.02em;line-height:1.15}
-.wrap{max-width:1200px;margin:0 auto;padding:0 22px;width:100%}
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(16px,3vw,28px);width:100%}
 .hid{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .mono{font-family:var(--mono)}
@@ -320,6 +320,12 @@ details.hint>div{padding:0 12px 12px;font-size:14px;color:var(--ink2)}
 .streak span{font-size:12px;color:var(--mute)}
 .dgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px;align-items:start;grid-auto-flow:dense}
 .dcard--wide{grid-column:span 2}
+.dash-more{grid-column:1/-1;margin-top:2px}
+.dash-more summary{cursor:pointer;list-style:none;color:var(--blue);font-weight:600;padding:10px 0}
+.dash-more summary::-webkit-details-marker{display:none}
+.dash-more summary::before{content:"+";display:inline-grid;place-items:center;width:22px;height:22px;margin-right:8px;border:1px solid var(--line);border-radius:50%;font-family:var(--mono)}
+.dash-more[open] summary::before{content:"−"}
+.dgrid--more{margin-top:4px}
 .dcard__h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
 .dcard__h h2{font-size:17px}
 .dcard__h a{text-decoration:none}
@@ -597,4 +603,47 @@ details.hint>div{padding:0 12px 12px;font-size:14px;color:var(--ink2)}
   .cpu__mem{grid-template-columns:repeat(4,1fr)}
   .flash{padding:18px;font-size:16px}
 }
+@media (max-width:480px){
+  body{font-size:14px}
+  .top .wrap{gap:8px}
+  .logo{font-size:16px}
+  .top__tools{gap:4px}
+  .iconbtn,.acct{width:34px;height:34px}
+  .nav{gap:0;padding:2px 0 1px}
+  .nav a{font-size:12px;padding:7px 8px}
+  .page{padding-top:18px}
+  .h1{font-size:28px}
+  .lead{font-size:15px}
+  .card{padding:14px}
+  .dgrid{gap:12px}
+  .dash__head{align-items:flex-start}
+  .streak{padding:8px 13px}
+  .streak b{font-size:28px}
+  .dcard__h{align-items:flex-start}
+  .kpis{gap:10px}
+  .kpis b{font-size:23px}
+  .filters{align-items:stretch}
+  .filters>*{min-width:0;max-width:none!important;flex:1 1 140px}
+  .filters input{flex-basis:100%}
+  .btn{min-height:40px}
+  .btn--sm{min-height:36px}
+  .qtools .seg{width:100%}
+  .qtools .seg button{flex:1}
+  .qnav{align-items:stretch;flex-wrap:wrap}
+  .qnav>*{flex:1 1 120px}
+  .CodeMirror{max-width:100%;font-size:12px}
+  .codebox,.ws,.ws--lab,.ws--iv,.ws--play,.split,.lesson{min-width:0}
+  pre,.code,.expr,.model{max-width:100%;overflow-x:auto}
+  table{display:block;max-width:100%;overflow-x:auto}
+  .foot{margin-top:32px;padding:20px 0}
+}
+@media (min-width:641px) and (max-width:1024px){
+  .wrap{padding-left:24px;padding-right:24px}
+  .dgrid{gap:14px}
+  .grid{gap:14px}
+}
+img,svg,canvas,video{max-width:100%}
+button,input,select,textarea{max-width:100%}
+.grid>*{min-width:0}
+.card,.dcard,.tile,.qcard,.workspace,.ws,.split{min-width:0;overflow-wrap:anywhere}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
