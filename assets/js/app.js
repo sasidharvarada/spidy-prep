@@ -113,7 +113,7 @@ export function accountModal() {
 ${s.user ? `<div class="row"><b>${esc(s.user.name || "")}</b><span class="note">${esc(s.user.email || "")}</span></div><p class="note" style="margin-top:8px">Progress syncs to Firestore under your account (users/your-id). It is also kept in this browser, so the site works offline.</p>
 <div class="row" style="margin-top:14px"><button class="btn btn--ghost" id="mImp">Import my Embedded Tracker ticks</button><button class="btn btn--ghost" id="mOut">Sign out</button></div>`
       : s.state === "off" ? `<p>Cloud sync needs a <code>firebase-config.js</code> file next to index.html (see README). Until then everything is saved in this browser - use <a href="#/progress">Export</a> to back it up.</p>`
-        : `<p>Sign in with Google to keep the same progress on your phone and laptop. Without signing in, progress stays in this browser.</p><div class="row" style="margin-top:14px"><button class="btn btn--red" id="mIn">Sign in with Google</button><button class="btn btn--ghost" id="mImp">Import my Embedded Tracker ticks</button></div>`}
+        : `<p>Sign in with Google to keep the same progress on your phone and laptop. Without signing in, progress stays in this browser.</p><div class="row" style="margin-top:14px"><button class="btn btn--red" id="mIn">Sign in with Google</button></div>`}
 <div class="row" style="margin-top:18px;justify-content:flex-end"><button class="btn btn--ink btn--sm" data-close-btn>Close</button></div>`, box => {
     const i = $("#mIn", box), o = $("#mOut", box), im = $("#mImp", box);
     if (i) i.onclick = async () => { i.disabled = true; try { await signIn(); closeModal(); toast("Signed in - syncing your progress."); } catch (e) { i.disabled = false; accountModal(); } };

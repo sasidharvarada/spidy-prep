@@ -5,12 +5,11 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
-    // Old Embedded Tracker document. Keep it readable so the new site can import it.
-    // While the old tracker is still in use it also needs write access (it has no sign-in).
-    // When you stop using the old tracker, change "write: if true" to "write: if false".
+    // Old Embedded Tracker document. Keep it readable to authenticated users so the
+    // new site can import it, but never allow the public client to overwrite it.
     match /progress/main {
-      allow read: if true;
-      allow write: if true;
+      allow read: if request.auth != null;
+      allow write: if false;
     }
   }
 }

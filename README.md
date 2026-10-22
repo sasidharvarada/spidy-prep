@@ -45,7 +45,7 @@ Double-clicking `index.html` does not work, because ES modules need a web server
    Google > Enable > Save.
 2. **Authorise your domain:** Authentication > Settings > Authorized domains > Add
    `sasidharvarada.github.io`. (`localhost` is there by default.)
-3. **Publish the rules:** Firestore Database > Rules > paste in the contents of `firestore.rules` > Publish.
+3. **Publish the rules:** Firestore Database > Rules > paste in the contents of `firestore.rules` > Publish. The legacy `progress/main` document is read-only from this app; import it after signing in.
 4. Open the site, click the cloud icon (top right) and choose **Sign in with Google**.
 
 On first sign-in the site:
@@ -57,8 +57,9 @@ On first sign-in the site:
 
 Without Firebase, everything still works and is saved in the browser. Use **Progress > Export** for backups.
 
-**Security note:** the old tracker writes `progress/main` without signing in, so that document stays
-world-writable while you use it. Once you have moved to this site, set its rule to `write: if false`.
+**Security note:** `progress/main` is intentionally read-only to the new app and requires authentication.
+Do not restore public write access. If the old unsigned-in tracker still needs to write that document,
+finish migrating its data first, then publish these rules.
 
 ## Editing content
 
