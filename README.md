@@ -75,10 +75,17 @@ finish migrating its data first, then publish these rules.
 After editing, run the checks (Node 18+):
 ```
 node tools/check-content.mjs     # ids, answers, solutions
+node tools/audit-practice.mjs    # practice inventory and executable metadata
 node tools/test-c.mjs            # every C reference solution, cross-checked with gcc
 node tools/test-verilog.mjs      # every Verilog reference solution
 node tools/test-circuits.mjs && node tools/test-kmap.mjs
 ```
+
+The browser C, Verilog and circuit evaluators are educational local simulators.
+Their reference implementations and specifications are delivered to the browser
+because this is a static GitHub Pages site; they are not genuinely private hidden
+tests. A trusted grading backend is required before claiming secure hidden-test
+evaluation, time limits or memory limits.
 
 ## Honest limits
 

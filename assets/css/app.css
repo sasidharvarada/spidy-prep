@@ -270,6 +270,7 @@ textarea.ans{width:100%;min-height:120px;resize:vertical;border:1.5px solid var(
 .key.hit{background:var(--green-w);border-color:var(--green);color:var(--green-t)}
 .selfq{font-size:15.5px;color:var(--ink2)}
 .qtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.sample-list{display:grid;gap:8px;margin-top:14px}.sample-list h3{font-size:15px}.sample,.sample-result{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}.sample pre,.sample-result pre{margin-top:5px;white-space:pre-wrap}.sample-result.ok{border-color:var(--green)}.sample-result.bad{border-color:var(--red)}
 .tbtn{border:1px solid var(--line);background:var(--card);border-radius:7px;font-size:13px;font-weight:600;padding:5px 10px}
 .tbtn.on{border-color:var(--amber);color:var(--amber-t);background:var(--amber-w)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}

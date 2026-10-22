@@ -27,9 +27,9 @@ const outBox = (cls, head, body) => { $("#out").innerHTML = `<div class="out-h $
 export function cWorkspace(q, head, after) {
   const p = q.prob, id = q.id, isProg = p.kind === "program";
   app().innerHTML = `<div class="wrap page"><div class="ws">
-<section class="ws-desc">${descPanel(q, head, `<p class="note">${isProg ? `Your program reads standard input. It runs on ${p.tests.length} hidden input${p.tests.length > 1 ? "s" : ""} and the output is compared line by line with the reference.` : "Write the function(s) only - no main(). Hidden tests call them and print results; your output must match the reference line by line."}</p>`)}${after || ""}</section>
+<section class="ws-desc">${descPanel(q, head, `<p class="note">${isProg ? `Your program reads standard input. Two sample inputs are shown below; Submit also checks ${Math.max(0, p.tests.length - 2)} additional evaluation inputs.` : "Write the function(s) only - no main(). Run uses the bundled exercise harness; Submit checks the full harness."}</p>${isProg ? `<div class="sample-list"><h3>Visible sample tests</h3>${p.tests.slice(0, 2).map((x, i) => `<div class="sample"><b>Sample ${i + 1}</b><pre>${esc(x || "(empty input)")}</pre></div>`).join("")}</div>` : `<div class="callout"><p>This browser evaluator is educational, not private: its test harness and reference implementation are shipped to the browser. A trusted hidden grader is required for genuinely private tests.</p></div>`}`)}${after || ""}</section>
 <section class="ws-main">
- <div class="edwrap"><div class="edbar"><span class="fname">main.c</span><button class="btn btn--sm btn--ghost" id="reset">Reset</button><button class="btn btn--sm btn--ink" id="run">▶ Run</button><button class="btn btn--sm btn--red" id="submit">Submit</button></div><div id="ed"></div></div>
+ <div class="edwrap"><div class="edbar"><span class="fname">main.c</span><button class="btn btn--sm btn--ghost" id="reset">Reset</button><button class="btn btn--sm btn--ink" id="run">${isProg ? "▶ Run samples" : "▶ Run"}</button><button class="btn btn--sm btn--red" id="submit">Submit</button></div><div id="ed"></div></div>
  ${isProg ? `<label class="note" for="stdin">Input (stdin) for Run</label><textarea id="stdin" class="stdin" spellcheck="false">${esc(p.tests[0])}</textarea>` : ""}
  <div class="out" id="out"><div class="out-h">Output</div><div class="out-b"><p class="note"><b>Run</b> compiles and runs; <b>Submit</b> checks against the tests. Ctrl+Enter runs.</p><p class="note" id="engNote">The compiler loads on first use (about 0.5 MB).</p></div></div>
  <p class="note">Software simulation: a 32-bit C compiler (xcc) in WebAssembly. It follows standard C, not the timing or peripherals of a real microcontroller.</p>
@@ -44,8 +44,16 @@ export function cWorkspace(q, head, after) {
   };
   async function run() {
     busy(true); outBox("", '<span class="spin"></span> Compiling and running...', "");
-    try { const C = await getC(); const r = isProg ? await C.runProgram(ed.get(), $("#stdin").value) : await C.runWithHarness(ed.get(), p.harness);
-      if (r.phase !== "done") showErr(r); else outBox("", `Output <span class="note" style="font-weight:400">(${r.ms} ms)</span>`, `<pre>${esc(r.out || "(no output)")}</pre>${!isProg ? '<p class="note" style="margin-top:8px">This is the test harness calling your functions. Submit to compare with the expected output.</p>' : ""}`);
+    try {
+      const C = await getC();
+      if (isProg) {
+        const r = await C.runSamples(p, ed.get());
+        if (r.phase !== "done") showErr(r);
+        else outBox("", "Visible sample results", r.rows.map((x, i) => `<div class="sample-result ${x.ok ? "ok" : "bad"}"><b>Sample ${i + 1}: ${x.ok ? "Passed" : "Failed"}</b><p class="note">Your output</p><pre>${esc(x.actual || "(no output)")}</pre>${x.ok ? "" : `<p class="note">Expected output</p><pre>${esc(x.expected || "(no output)")}</pre>`}</div>`).join(""));
+      } else {
+        const r = await C.runWithHarness(ed.get(), p.harness);
+        if (r.phase !== "done") showErr(r); else outBox("", `Harness output <span class="note" style="font-weight:400">(${r.ms} ms)</span>`, `<pre>${esc(r.out || "(no output)")}</pre><p class="note" style="margin-top:8px">This is a local educational harness. Submit performs the same browser-side comparison.</p>`);
+      }
     } catch (e) { outBox("bad", "Could not run", `<pre>${esc(e.message || e)}</pre>`); } finally { busy(false); }
   }
   async function submit() {
@@ -53,7 +61,7 @@ export function cWorkspace(q, head, after) {
     try {
       const C = await getC(); const r = await C.checkProblem(p, ed.get());
       if (r.ok) { store.record(id, true); outBox("ok", `✓ Accepted - all ${r.lines} output line${r.lines > 1 ? "s" : ""} match`, `<p>Well done! ${isProg ? `Passed ${r.tests} test input${r.tests > 1 ? "s" : ""}.` : ""}</p><p class="note" style="margin-top:6px">Interview habit: explain the solution out loud with its time and memory cost.</p>`); toast("Accepted! Problem solved."); }
-      else if (r.phase === "wrong") { store.record(id, false); outBox("bad", `✗ Wrong answer${isProg ? ` on test ${r.testIndex + 1}` : ""} - line ${r.line + 1}`, `${isProg ? `<p class="note">Input:</p><pre>${esc(r.stdin)}</pre>` : ""}<div class="diff"><b>yours</b><span class="you">${esc(r.you)}</span><b>expected</b><span class="exp">${esc(r.exp)}</span></div><p class="note">${r.passedLines} of ${r.totalLines} lines matched before this one.</p><details class="hint"><summary>Full outputs</summary><div class="grid g2"><div><p class="note">Yours</p><pre>${esc(r.out)}</pre></div><div><p class="note">Expected</p><pre>${esc(r.expOut)}</pre></div></div></details>`); }
+      else if (r.phase === "wrong") { store.record(id, false); outBox("bad", `✗ Wrong answer${isProg ? ` on evaluation case ${r.testIndex + 1}` : ""}`, `${r.hidden ? "<p class=\"note\">An evaluation case failed. Its private input and expected output are not shown.</p>" : `<div class="diff"><b>yours</b><span class="you">${esc(r.you)}</span><b>expected</b><span class="exp">${esc(r.exp)}</span></div>`}<p class="note">${r.passedLines} of ${r.totalLines} lines matched before this case.</p>`); }
       else if (r.phase === "internal") outBox("warn", "Checker problem", `<pre>${esc(r.err)}</pre>`);
       else { store.record(id, false); showErr(r); }
     } catch (e) { outBox("bad", "Could not run the tests", `<pre>${esc(e.message || e)}</pre>`); } finally { busy(false); }
@@ -112,7 +120,8 @@ export function kWorkspace(q, head, after) {
     const r = checkCircuit(editor.circ, checkSpec(p));
     if (r.error) { $("#out").innerHTML = `<div class="out-h bad">✗ ${esc(r.error)}</div>`; return; }
     const ins = p.seq ? ["clock", ...p.pins.in] : p.pins.in;
-    const tbl = `<div style="overflow-x:auto"><table class="ttab"><tr>${ins.map(n => `<th>${esc(n)}</th>`).join("")}${p.pins.out.map((n, i) => `<th class="${i === 0 ? "sepc" : ""}">${esc(n)}</th>`).join("")}<th>expected</th></tr>${r.rows.map(row => `<tr class="${row.good ? "good" : "bad"}">${ins.map(n => `<td>${row.in[n] ?? ""}</td>`).join("")}${p.pins.out.map((n, i) => `<td class="o${i === 0 ? " sepc" : ""}">${row.got[n]}</td>`).join("")}<td>${p.pins.out.map(n => row.exp[n]).join(" ")}</td></tr>`).join("")}</table></div>`;
+    const visible = r.rows.slice(0, 2), hidden = r.rows.slice(2);
+    const tbl = `<div style="overflow-x:auto"><table class="ttab"><tr>${ins.map(n => `<th>${esc(n)}</th>`).join("")}${p.pins.out.map((n, i) => `<th class="${i === 0 ? "sepc" : ""}">${esc(n)}</th>`).join("")}<th>expected</th></tr>${visible.map(row => `<tr class="${row.good ? "good" : "bad"}">${ins.map(n => `<td>${row.in[n] ?? ""}</td>`).join("")}${p.pins.out.map((n, i) => `<td class="o${i === 0 ? " sepc" : ""}">${row.got[n]}</td>`).join("")}<td>${p.pins.out.map(n => row.exp[n]).join(" ")}</td></tr>`).join("")}</table></div>${hidden.length ? `<p class="note" style="margin-top:8px">${hidden.filter(x => x.good).length} of ${hidden.length} additional evaluation checks passed. Their vectors are not shown.</p>` : ""}`;
     store.record(id, !!r.ok);
     if (r.ok) { const star = p.par && r.gates <= p.par; $("#out").innerHTML = `<div class="out-h ok">✓ Correct${star ? " ★ with the minimum gate count" : ""}</div><div class="out-b"><p>${r.gates} gate${r.gates === 1 ? "" : "s"} used${p.par && !star ? ` - it can be done with ${p.par}. Try again for the star!` : "."}</p>${tbl}</div>`; toast(star ? "Correct, and minimal! ★" : "Correct!"); }
     else { const nb = r.rows.filter(x => !x.good).length; $("#out").innerHTML = `<div class="out-h bad">✗ ${nb} row${nb > 1 ? "s" : ""} wrong</div><div class="out-b"><p class="note">Red rows show where your outputs differ.</p>${tbl}</div>`; }

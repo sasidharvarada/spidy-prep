@@ -1,7 +1,7 @@
 // Embedded C practice problems.
-// kind "function": you write function(s); a hidden harness calls them and prints results.
+// kind "function": you write function(s); the local exercise harness calls them and prints results.
 // kind "program":  you write main(); it reads stdin and prints to stdout.
-// Your output is compared line by line with the reference solution's output.
+// Your output is compared line by line with the local reference output.
 export const C_PROBLEMS = [
 /* --------------------------------------------------------------- bits */
 {

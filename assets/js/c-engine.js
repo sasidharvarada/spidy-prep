@@ -43,6 +43,21 @@ export function runWithHarness(userCode, harness) {
   return send({ code, entry: "tests", stdin: "" }, TIME_LIMIT_MS);
 }
 
+const normalize = s => String(s || "").replace(/\s+$/g, "").split("\n").map(x => x.replace(/\s+$/, "")).join("\n");
+
+export async function runSamples(p, userCode) {
+  if (p.kind !== "program") return { phase: "unsupported", err: "Function samples are bundled in the exercise harness and are not separately configured." };
+  const rows = [];
+  for (const stdin of (p.tests || []).slice(0, 2)) {
+    const you = await runProgram(userCode, stdin);
+    if (you.phase !== "done") return { phase: you.phase, err: you.err, out: you.out };
+    const ref = await runProgram(p.solution, stdin);
+    if (ref.phase !== "done") return { phase: "internal", err: "reference solution failed: " + ref.err };
+    rows.push({ actual: you.out, expected: ref.out, ok: normalize(you.out) === normalize(ref.out), ms: you.ms });
+  }
+  return { phase: "done", rows };
+}
+
 // Check a problem: run the user's code and the reference solution the same
 // way and compare their output line by line.
 export async function checkProblem(p, userCode) {
@@ -58,7 +73,7 @@ export async function checkProblem(p, userCode) {
     const b = ref.out.replace(/\s+$/g, "").split("\n").map(s => s.replace(/\s+$/, ""));
     const n = Math.max(a.length, b.length);
     for (let k = 0; k < n; k++) {
-      if (a[k] !== b[k]) return { ok: false, phase: "wrong", testIndex: i, stdin: inputs[i], line: k, you: a[k] ?? "(nothing)", exp: b[k] ?? "(nothing)", out: you.out, expOut: ref.out, passedLines: k, totalLines: b.length };
+      if (a[k] !== b[k]) return { ok: false, phase: "wrong", hidden: i >= 2, testIndex: i, stdin: inputs[i], line: k, you: a[k] ?? "(nothing)", exp: b[k] ?? "(nothing)", out: you.out, expOut: ref.out, passedLines: k, totalLines: b.length };
     }
     results.push({ lines: b.length, ms: you.ms });
   }
