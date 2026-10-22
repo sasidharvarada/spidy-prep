@@ -3,7 +3,10 @@ import fs from "node:fs"; import { execFileSync } from "node:child_process"; imp
 import { CRepl } from "../assets/vendor/xcc/repl.js";
 import headers from "../assets/vendor/xcc/headers.js";
 import runtimeMap from "../assets/vendor/xcc/runtime-map.js";
-import { C_PROBLEMS } from "../assets/data/c-problems.js";
+import { C_PROBLEMS as C1 } from "../assets/data/v1/c-problems.js";
+import { DSA_PROBLEMS } from "../assets/data/qb/q-dsa.js";
+const C_PROBLEMS = [...C1, ...DSA_PROBLEMS];
+const ids = C_PROBLEMS.map(p => p.id); if (new Set(ids).size !== ids.length) console.log("DUPLICATE C PROBLEM IDS");
 const cc = await WebAssembly.compile(fs.readFileSync("assets/vendor/xcc/cc.wasm"));
 const rt = await WebAssembly.compile(fs.readFileSync("assets/vendor/xcc/runtime.wasm"));
 async function xrun(code, entry, stdin = "") {

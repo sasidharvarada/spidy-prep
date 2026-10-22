@@ -1,6 +1,6 @@
 // Run: node tools/test-verilog.mjs
 import { checkDesign, compileVerilog, autoRun } from "../assets/js/verilog.js";
-import { VERILOG_PROBLEMS } from "../assets/data/verilog-problems.js";
+import { VERILOG_PROBLEMS } from "../assets/data/v1/verilog-problems.js";
 let fail = 0;
 const ok = (c, m) => { if (!c) { fail++; console.log("FAIL:", m); } };
 for (const p of VERILOG_PROBLEMS) {

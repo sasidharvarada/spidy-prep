@@ -1,6 +1,6 @@
 // Run: node tools/test-circuits.mjs
 import { checkCircuit, truthTable } from "../assets/js/circuit.js";
-import { CIRCUIT_PROBLEMS, problemCircuit, solutionCircuit, checkSpec } from "../assets/data/circuit-problems.js";
+import { CIRCUIT_PROBLEMS, problemCircuit, solutionCircuit, checkSpec } from "../assets/data/v1/circuit-problems.js";
 let fail = 0;
 for (const p of CIRCUIT_PROBLEMS) {
   const sol = checkCircuit(solutionCircuit(p), checkSpec(p));

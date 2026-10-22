@@ -6,7 +6,7 @@ export const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<":
 export function ring(pct, color, size, label, sub) {
   const sw = size < 80 ? 7 : 10, r = size / 2 - sw / 2 - 3, c = 2 * Math.PI * r, off = c * (1 - Math.min(1, Math.max(0, pct) / 100));
   return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(label)} ${Math.round(pct)} percent">
-<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="#ECEAE3" stroke-width="${sw}"/>
+<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--hair)" stroke-width="${sw}"/>
 <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
 <text x="50%" y="${sub ? "48%" : "54%"}" text-anchor="middle" class="ring__v" ${size < 80 ? 'style="font-size:14px"' : ""}>${esc(label)}</text>
 ${sub ? `<text x="50%" y="65%" text-anchor="middle" class="ring__s">${esc(sub)}</text>` : ""}</svg>`;
@@ -32,7 +32,7 @@ export function gateWidget(host, opts = {}) {
 <path class="gate" data-shape d=""/><circle class="gate" data-bub cx="0" cy="95" r="7" style="display:none"/>
 <text class="gtxt" data-lbl x="200" y="100" text-anchor="middle">AND</text>
 <path class="wire" data-w="Y" d="M262 95 H330"/>
-<circle class="lamp" cx="360" cy="95" r="26" fill="#EDEBE4" stroke="#13213C" stroke-width="3"/><path d="M350 121 h20 v10 h-20z" fill="#13213C"/>
+<circle class="lamp" cx="360" cy="95" r="26" fill="var(--sunk)" stroke="var(--ink)" stroke-width="3"/><path d="M350 121 h20 v10 h-20z" fill="var(--ink)"/>
 <text x="360" y="172" text-anchor="middle" class="gtxt" data-y style="font-size:13px">Y = 0</text></svg>
 <div class="truth" aria-live="polite"></div></div>`;
   const q = s => host.querySelector(s);
@@ -161,12 +161,12 @@ export function uartWidget(host) {
     const W = 560, st = W / seq.length, hi = 18, lo = 62;
     let d = `M0 ${seq[0].v ? hi : lo}`, s = "", x = 0;
     seq.forEach((b, i) => { d += ` V${b.v ? hi : lo} H${x += st}`;
-      const fill = b.l === "start" ? "#FDECEE" : b.l === "stop" ? "#E7F6EC" : b.l === "par" ? "#FEF3E2" : b.l[0] === "D" ? "#EAF1FE" : "none";
+      const fill = b.l === "start" ? "var(--red-w)" : b.l === "stop" ? "var(--green-w)" : b.l === "par" ? "var(--amber-w)" : b.l[0] === "D" ? "var(--blue-w)" : "none";
       s += `<rect x="${i * st}" y="10" width="${st}" height="60" fill="${fill}"/>`;
       s += `<text x="${i * st + st / 2}" y="88" text-anchor="middle" class="wv-step" style="font-size:10px">${b.l}</text>`;
       if (b.l[0] === "D" || b.l === "par") s += `<text x="${i * st + st / 2}" y="104" text-anchor="middle" class="wv-val" style="font-weight:700">${b.v}</text>`;
     });
-    q("[data-svg]").innerHTML = s + `<path d="${d}" fill="none" stroke="#13213C" stroke-width="2.5"/>`;
+    q("[data-svg]").innerHTML = s + `<path d="${d}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
     const bits = 10 + (parity !== "N" ? 1 : 0);
     q("[data-info]").innerHTML = `<span>'${esc(ch)}' = <b>0x${code.toString(16).toUpperCase().padStart(2, "0")}</b> = <b>${code.toString(2).padStart(8, "0")}</b></span><span>${bits} bits per byte</span><span>at 115200 baud: <b>${Math.floor(115200 / bits)}</b> bytes/s</span>`;
   }
@@ -194,7 +194,7 @@ export function pwmWidget(host) {
     const fmtT = x => x >= 1 ? x.toPrecision(4) + " s" : x >= 1e-3 ? (x * 1e3).toPrecision(4) + " ms" : x >= 1e-6 ? (x * 1e6).toPrecision(4) + " µs" : (x * 1e9).toPrecision(4) + " ns";
     let d = "M0 70", x = 0; const per = 560 / 4;
     for (let i = 0; i < 4; i++) { const h = per * duty; d += ` V${duty > 0 ? 18 : 70} H${x + h} V70 H${x + per}`; x += per; }
-    q("[data-svg]").innerHTML = `<line x1="0" y1="70" x2="560" y2="70" class="wv-grid"/><path d="${d}" fill="none" stroke="#E63946" stroke-width="2.5"/>`;
+    q("[data-svg]").innerHTML = `<line x1="0" y1="70" x2="560" y2="70" class="wv-grid"/><path d="${d}" fill="none" stroke="var(--red)" stroke-width="2.5"/>`;
     q("[data-out]").innerHTML = `<span>counter tick <b>${fmtT(1 / tick)}</b></span><span>PWM / update frequency <b>${fmtF(upd)}</b></span><span>period <b>${fmtT(1 / upd)}</b></span><span>duty <b>${(duty * 100).toFixed(1)}%</b></span><span>resolution <b>${arr + 1} steps</b></span>`;
   }
   host.querySelectorAll("input").forEach(i => i.addEventListener("input", draw));
